@@ -1,38 +1,35 @@
-@drinks = {cola: {price: 120, stock: 5},
-          calpis: {price: 150, stock: 0}
-         }
-
-puts "お金を入れてください"
-money = gets.to_i
-puts "欲しいドリンクを選択してください"
-get = gets.chomp.to_sym
-
-return puts "その商品はありません" unless @drinks[get]
-
-return puts "在庫がありません。" if @drinks[get][:stock] <= 0
-
-if money < @drinks[get][:price]
-  puts "お金が足りません"
-
-  return puts "#{money}円の返却です"
-end
+@drinks = {cola:   {price: 120, stock: 5},
+           calpis: {price: 150, stock: 1}
+          }
 
 def total_sale(money)
-  File.open("money.txt", "w+") do |f|
-    f.print money
+  File.open("money.txt", "a") do |f|
+    f.puts "#{money}"
   end
 end
 
-def order(get,money)
-  if @drinks.has_key?(get)
-    puts "#{get}がでました"
-    @drinks[get][:stock] -= 1
-    puts "#{(money - @drinks[get][:price])}円のおつりです"
-    total_sale(@drinks[get][:price])
-  else
-    return order
+def order(ordered,money)
+  if @drinks.has_key?(ordered)
+    puts "#{ordered}がでました"
+    @drinks[ordered][:stock] -= 1
+    puts "#{(money - @drinks[ordered][:price])}円のおつりです"
+    total_sale(@drinks[ordered][:price])
   end
 end
-order(get,money)
-# 在庫の確認
-# 在庫がなかったらすぐリターン
+
+loop do
+  puts "お金を入れてください"
+  money = gets.to_i
+  puts "欲しいドリンクを選択してください"
+  ordered = gets.chomp.to_sym
+
+  next puts "その商品はありません" unless @drinks[ordered]
+  next puts "在庫がありません。" if @drinks[ordered][:stock] <= 0
+
+  if money < @drinks[ordered][:price]
+    puts "お金が足りません"
+    next puts "#{money}円の返却です"
+  end
+
+  order(ordered,money)
+end
